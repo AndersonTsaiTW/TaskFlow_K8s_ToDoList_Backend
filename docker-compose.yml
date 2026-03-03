@@ -1,6 +1,6 @@
 services:
   api:
-    build: .
+    build: .  #build from docker file
     container_name: taskflow-api
     ports:
       - "8000:8000"
@@ -8,4 +8,22 @@ services:
       - .:/app
     environment:
       - ENV=development
+      - DATABASE_URL=postgresql://taskflow:password@db:5432/taskflow
+    depends_on:
+      - db
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:15
+    container_name: taskflow-db
+    environment:
+      - POSTGRES_USER=taskflow
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=taskflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: 
