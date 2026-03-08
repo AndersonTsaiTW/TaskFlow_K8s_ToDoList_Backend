@@ -1,8 +1,8 @@
 from typing import Optional, List, Literal
 from datetime import datetime
 import uuid
-from fastapi import APIRouter, Depends, Query
-from app.schemas.todo import TodoCreate, TodoListResponse, TodoResponse
+from fastapi import APIRouter, Depends, Query, HTTPException, status
+from app.schemas.todo import TodoCreate, TodoUpdate, TodoListResponse, TodoResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from sqlalchemy import func, or_
@@ -115,3 +115,76 @@ def create_todo(
   db.refresh(new_todo)
 
   return new_todo
+
+
+@router.get("/todos/{todo_id}", response_model=TodoResponse)
+def get_todo(
+    todo_id: str,
+    db: Session = Depends(get_db)
+):
+    """Get a single todo by ID"""
+    
+    # Query database for the todo
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    
+    # If not found, return 404
+    if not todo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Todo with id '{todo_id}' not found"
+        )
+    
+    return todo
+
+
+@router.patch("/todos/{todo_id}", response_model=TodoResponse)
+def update_todo(
+    todo_id: str,
+    todo_data: TodoUpdate,
+    db: Session = Depends(get_db)
+):
+    """Update a todo (partial update)"""
+    
+    # Find the todo
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    
+    if not todo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Todo with id '{todo_id}' not found"
+        )
+    
+    # Update only the fields that were provided
+    update_data = todo_data.model_dump(exclude_unset=True)
+    
+    for field, value in update_data.items():
+        setattr(todo, field, value)
+    
+    # Commit changes
+    db.commit()
+    db.refresh(todo)
+    
+    return todo
+
+
+@router.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_todo(
+    todo_id: str,
+    db: Session = Depends(get_db)
+):
+    """Delete a todo"""
+    
+    # Find the todo
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    
+    if not todo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Todo with id '{todo_id}' not found"
+        )
+    
+    # Delete the todo
+    db.delete(todo)
+    db.commit()
+    
+    # Return 204 No Content (no body)

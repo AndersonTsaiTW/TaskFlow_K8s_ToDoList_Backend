@@ -10,6 +10,17 @@ class TodoCreate(BaseModel):
     priority: int = Field(1, ge=1, le=5)
     tags: Optional[List[str]] = Field(None)
 
+
+class TodoUpdate(BaseModel):
+    """data format for updating Todo (all fields optional)"""
+    title: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = Field(None)
+    due_at: Optional[datetime] = Field(None)
+    priority: Optional[int] = Field(None, ge=1, le=5)
+    tags: Optional[List[str]] = Field(None)
+    status: Optional[str] = Field(None)
+
+
 class TodoResponse(BaseModel):
     id: str
     title: str
