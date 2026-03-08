@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.endpoints import todos
+
 app = FastAPI(
     title="TaskFlow API",
     description="To-Do List Backend API",
@@ -33,3 +35,10 @@ def liveness():
 def readiness():
     """Readiness probe - checks if application is ready to serve traffic"""
     return {"status": "ready"}
+
+
+app.include_router(
+    todos.router,
+    prefix="/api/v1",
+    tags=["todos"]
+)

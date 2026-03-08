@@ -75,3 +75,16 @@ docker/volumes/
 # Kubernetes (local secrets)
 # ========================================
 k8s/secrets/
+
+# ========================================
+# Alembic (Database Migrations)
+# ========================================
+# Commit these:
+# - alembic/
+# - alembic/versions/*.py
+# - alembic.ini
+# - alembic/env.py
+
+# Ignore these (already covered by __pycache__/):
+# - alembic/__pycache__/
+# - alembic/versions/__pycache__/
