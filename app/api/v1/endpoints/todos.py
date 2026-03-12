@@ -2,13 +2,15 @@ from typing import Optional, List, Literal
 from datetime import datetime
 import uuid
 from fastapi import APIRouter, Depends, Query, HTTPException, status
+from app.api.v1.endpoints.auth import get_current_user
 from app.schemas.todo import TodoCreate, TodoUpdate, TodoListResponse, TodoResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from sqlalchemy import func, or_
 from app.models.todo import Todo
+from app.models.user import User
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 @router.get("/todos", response_model=TodoListResponse)
 def list_todos(
@@ -46,9 +48,10 @@ def list_todos(
     "asc",
     description="Sort order (asc=ascending, desc=descending)"
   ),
-  db: Session = Depends(get_db)
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_current_user),
 ):
-  query = db.query(Todo)
+  query = db.query(Todo).filter(Todo.user_id == current_user.id)
 
   if status and status != "all":
     query = query.filter(Todo.status == status)
@@ -92,15 +95,21 @@ def list_todos(
 @router.post("/todos", response_model=TodoResponse, status_code=201)
 def create_todo(
     todo_data: TodoCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
   todo_id = str(uuid.uuid4())
 
-  max_position = db.query(func.max(Todo.position)).scalar()
+  max_position = (
+    db.query(func.max(Todo.position))
+    .filter(Todo.user_id == current_user.id)
+    .scalar()
+  )
   new_position = (max_position or 0) + 1
 
   new_todo = Todo(
     id=todo_id,
+    user_id=current_user.id,
     title=todo_data.title,
     description=todo_data.description,
     due_at=todo_data.due_at,
@@ -120,12 +129,17 @@ def create_todo(
 @router.get("/todos/{todo_id}", response_model=TodoResponse)
 def get_todo(
     todo_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Get a single todo by ID"""
     
     # Query database for the todo
-    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    todo = (
+        db.query(Todo)
+        .filter(Todo.id == todo_id, Todo.user_id == current_user.id)
+        .first()
+    )
     
     # If not found, return 404
     if not todo:
@@ -141,12 +155,17 @@ def get_todo(
 def update_todo(
     todo_id: str,
     todo_data: TodoUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Update a todo (partial update)"""
     
     # Find the todo
-    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    todo = (
+        db.query(Todo)
+        .filter(Todo.id == todo_id, Todo.user_id == current_user.id)
+        .first()
+    )
     
     if not todo:
         raise HTTPException(
@@ -170,12 +189,17 @@ def update_todo(
 @router.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_todo(
     todo_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Delete a todo"""
     
     # Find the todo
-    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    todo = (
+        db.query(Todo)
+        .filter(Todo.id == todo_id, Todo.user_id == current_user.id)
+        .first()
+    )
     
     if not todo:
         raise HTTPException(

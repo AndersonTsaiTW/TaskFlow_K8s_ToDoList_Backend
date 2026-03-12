@@ -1,7 +1,7 @@
 """
 Todo database model
 """
-from sqlalchemy import Column, String, Integer, DateTime, Text, JSON
+from sqlalchemy import Column, String, Integer, DateTime, Text, JSON, ForeignKey
 from sqlalchemy.sql import func
 from app.database import Base
 
@@ -12,6 +12,7 @@ class Todo(Base):
 
     # Primary key
     id = Column(String, primary_key=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     
     # Core fields
     title = Column(String(200), nullable=False, index=True)

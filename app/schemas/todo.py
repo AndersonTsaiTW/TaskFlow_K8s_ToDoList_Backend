@@ -36,6 +36,7 @@ class TodoResponse(BaseModel):
     class Config:
         from_attributes: True
 
+
 class TodoListResponse(BaseModel):
     items: List[TodoResponse]
     total: int
