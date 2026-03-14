@@ -9,6 +9,11 @@ from app.models.user import User
 from app.models.todo import Todo
 from app.api.v1.endpoints import todos, auth
 
+DEFAULT_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
+
 
 def get_allowed_origins() -> list[str]:
     origins = os.getenv("ALLOWED_ORIGINS")
