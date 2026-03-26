@@ -2,6 +2,18 @@
 
 A FastAPI-based To-Do List backend application designed for Kubernetes deployment.
 
+## Documentation
+
+### CI/CD & Deployment
+- **[CI/CD Pipeline Setup](docs/ci-cd-pipeline.md)** - Overall architecture and workflow
+  - [GitHub Actions Setup Guide](docs/cicd-github-actions-setup.md) - GitHub repository configuration
+  - [IAM Role Setup](docs/cicd-github-actions-ecr-push-role.md) - AWS configuration details
+
+### Database
+- [Database Migrations](docs/database-migrations.md) - Alembic setup and workflow
+
+---
+
 ## Tech Stack
 
 - **FastAPI** - Modern, fast web framework for building APIs
