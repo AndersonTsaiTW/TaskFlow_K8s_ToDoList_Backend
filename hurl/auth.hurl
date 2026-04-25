@@ -12,7 +12,9 @@ jsonpath "$.name" == "Hurl Test User"
 
 POST {{base_url}}/api/v1/auth/login
 Content-Type: application/x-www-form-urlencoded
-username={{email}}&password={{password}}
+[FormParams]
+username: {{email}}
+password: {{password}}
 HTTP 200
 [Captures]
 token: jsonpath "$.access_token"
