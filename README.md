@@ -6,6 +6,7 @@ A FastAPI-based To-Do List backend application designed for Kubernetes deploymen
 
 ### CI/CD & Deployment
 - **[CI/CD Pipeline Setup](docs/ci-cd-pipeline.md)** - Overall architecture and workflow
+  - [Test Implementation Plan](docs/test-implementation-plan.md) - Planned pytest, hurl, shell script, and CI test flow
   - [GitHub Actions Setup Guide](docs/cicd-github-actions-setup.md) - GitHub repository configuration
   - [IAM Role Setup](docs/cicd-github-actions-ecr-push-role.md) - AWS configuration details
    - [Cross-Account ECR Access](docs/cicd-cross-account-ecr-access.md) - Share ECR control to another AWS account

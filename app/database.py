@@ -10,11 +10,17 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://taskflow:password@localhost:5432/taskflow"
 )
+SQL_ECHO = os.getenv("SQL_ECHO", "false").lower() == "true"
+
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
 
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,  # check connection
-    echo=True  # dev: shows SQL; prod: False
+    echo=SQL_ECHO,  # dev: shows SQL when SQL_ECHO=true
+    connect_args=connect_args,
 )
 
 # build Session
